@@ -1,6 +1,35 @@
 = ruby-ampache
 
-Description goes here.
+Ruby-ampache is a really simple command line player for the ampache music server.
+
+== Installation
+
+You need to have mplayer installed to use ruby-ampache. Mplayer is used for playing music streams.
+
+Gem can be installed as usual
+
+    gem install ruby-ampache
+
+== Usage
+First you have to write a .ruby-ampache file and save it in your $HOME
+
+example file:
+    AMPACHE_HOST="http://path_to_your_ampache_host"
+    AMPACHE_USER="username"
+    AMPACHE_USER_PSW="userpsw"
+
+Simply execute ruby-ampache that should be found in you $PATH after installation
+
+== TODO
+This is an alpha version and still has some issues.
+If you kill the application mplayer will continue to run in background.
+Also sometimes if mplayer get stucked playing a song the app does the same.
+
+If you found more issues please let me know and I'll try to fix them as soon as possible
+
+== Notes
+Special thanks goes to the developer of mplayer-ruby gem.
+I've borrowed a couple of methods from his useful library
 
 == Note on Patches/Pull Requests
  
@@ -14,4 +43,5 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2010 tha. See LICENSE for details.
+Copyright (c) 2010 ghedmat. See LICENSE for details.
+Please drop me a line if you find this useful

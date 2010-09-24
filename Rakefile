@@ -5,12 +5,14 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "ruby-ampache"
-    gem.summary = %Q{Ampache ruby client - maybe one day }
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Ampache ruby client - really simple ampache cli player}
+    gem.description = %Q{Ampache ruby based command line player - uses mplayer for streaming audio}
     gem.email = "thamayor@gmail.com"
     gem.homepage = "http://github.com/ghedamat/ruby-ampache"
-    gem.authors = ["tha"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.authors = ["ghedamat"]
+    gem.add_dependency "highline"
+    gem.add_dependency "nokogiri"
+    gem.add_dependency "parseconfig"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
