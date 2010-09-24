@@ -20,7 +20,11 @@ require File.join(File.dirname(__FILE__),'..','lib','lib-classes')
 
 
 # Ampache ruby parameters
+begin
 ar_config = ParseConfig.new(File.expand_path('~/.ruby-ampache'))
+rescue
+   raise "\nPlease create a .ruby-ampache file on your home\n See http://github.com/ghedamat/ruby-ampache for infos\n"
+end
 
 # ruby-ampache highline version
 $terminal.wrap_at = 80
