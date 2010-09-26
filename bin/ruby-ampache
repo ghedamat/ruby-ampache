@@ -19,6 +19,30 @@ require File.join(File.dirname(__FILE__),'..','lib','lib-ampache')
 require File.join(File.dirname(__FILE__),'..','lib','lib-classes')
 
 
+# XXX monkey patch for utf8 on ruby 1.9
+if /^1\.9/ === RUBY_VERSION then
+    class HighLine
+        def wrap (text)
+            text = text.force_encoding("UTF-8")
+            wrapped = [ ]
+            text.each_line do |line|
+              while line =~ /([^\n]{#{@wrap_at + 1},})/
+                search  = $1.dup
+                replace = $1.dup
+                if index = replace.rindex(" ", @wrap_at)
+                  replace[index, 1] = "\n"
+                  replace.sub!(/\n[ \t]+/, "\n")
+                  line.sub!(search, replace)
+                else
+                  line[$~.begin(1) + @wrap_at, 0] = "\n"
+                end
+              end
+              wrapped << line
+            end
+            return wrapped.join
+        end
+    end
+end
 
 # Ampache ruby parameters
 begin
@@ -28,8 +52,8 @@ rescue
 end
 
 # ruby-ampache highline version
-#$terminal.wrap_at = 80
-#$terminal.page_at = 22
+$terminal.wrap_at = 80
+$terminal.page_at = 22
 
 def print_albums(albums)
      choose do |menu|
