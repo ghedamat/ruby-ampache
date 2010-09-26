@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding:  UTF-8
 
 def secure_require(name)
     begin 
@@ -27,15 +28,15 @@ rescue
 end
 
 # ruby-ampache highline version
-$terminal.wrap_at = 80
-$terminal.page_at = 22
+#$terminal.wrap_at = 80
+#$terminal.page_at = 22
 
 def print_albums(albums)
      choose do |menu|
         menu.prompt = "Choose an album or abort (1) "
         menu.choice(HighLine.new.color "ABORT", :red)   
         albums.each do |a|
-            menu.choice(a.name) { a.addToPlaylist(@pl)}  
+            menu.choice(a.name.encode("utf-8")) { a.addToPlaylist(@pl)}  
         end
     end   
 end
@@ -45,7 +46,7 @@ def print_artists(artists)
         menu.prompt = "Choose an artists or abort (1)"
         menu.choice(HighLine.new.color "ABORT", :red)  
         artists.each do |a|
-            menu.choice(a.name) { print_albums(a.albums) }  
+            menu.choice(a.name.encode("utf-8")) { print_albums(a.albums.encode("utf-8")) }  
         end
     end
 end
