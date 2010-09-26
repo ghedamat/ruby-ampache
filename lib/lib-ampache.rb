@@ -74,22 +74,3 @@ class AmpacheRuby
     
 end
 
-if __FILE__ == $0 
-    ar =AmpacheRuby.new('ks35824.kimsufi.com', '/graspafm', 'admin', 'potetemorire')
-        @artists = ar.getArtists()
-        @artists[20].albums[0].songs[0].url
-        @artists[20].albums[0].songs[0].addToPlaylist(ar.playlist)
-        @artists[21].albums[0].addToPlaylist(ar.playlist)
-
-
-        ar.playlist.play
-        sleep 10
-        ar.playlist.next
-
-        gets
-
-    #TODO add album class.. add album parsing.. add get album songs method ,
-    #reneame in getArtistAlbums
-    
-
-end
