@@ -28,8 +28,8 @@ rescue
 end
 
 # ruby-ampache highline version
-$terminal.wrap_at = 80
-$terminal.page_at = 22
+#$terminal.wrap_at = 80
+#$terminal.page_at = 22
 
 def print_albums(albums)
      choose do |menu|
