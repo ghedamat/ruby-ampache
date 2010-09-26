@@ -36,7 +36,7 @@ def print_albums(albums)
         menu.prompt = "Choose an album or abort (1) "
         menu.choice(HighLine.new.color "ABORT", :red)   
         albums.each do |a|
-            menu.choice(a.name.encode("utf-8")) { a.addToPlaylist(@pl)}  
+            menu.choice(a.name) { a.addToPlaylist(@pl)}  
         end
     end   
 end
@@ -46,7 +46,7 @@ def print_artists(artists)
         menu.prompt = "Choose an artists or abort (1)"
         menu.choice(HighLine.new.color "ABORT", :red)  
         artists.each do |a|
-            menu.choice(a.name.encode("utf-8")) { print_albums(a.albums.encode("utf-8")) }  
+            menu.choice(a.name) { print_albums(a.albums) }  
         end
     end
 end
