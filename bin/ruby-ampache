@@ -71,13 +71,13 @@ def print_artists(artists)
        say("token exausted, please retry")
        artists = @ar.artists 
     end
-        choose do |menu|
-            menu.prompt = "Choose an artists or abort (1)"
-            menu.choice(HighLine.new.color "ABORT", :red)  
-            artists.each do |a|
-                menu.choice(a.name) { print_albums(a.albums) }  
-            end
+    choose do |menu|
+        menu.prompt = "Choose an artists or abort (1)"
+        menu.choice(HighLine.new.color "ABORT", :red)  
+        artists.each do |a|
+            menu.choice(a.name) { print_albums(a.albums) }  
         end
+    end
 end
 
 # try to reset token if it's not valid
@@ -110,7 +110,8 @@ while true
         menu.prompt = "pick your choice!"
         menu.choice("now playing") { say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("skip this song") { @pl.next; say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("add another album") { print_artists(@ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
+        menu.choice("add another album to playlist") { print_artists(@ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
+        menu.choice("look for an artist") {  print_artists(@ar.artists(ask("Artist name?"))); say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("stop playing") { @pl.stop } 
         menu.choice("about ruby-ampache") { say(HighLine.new.color credits, :red) }
         menu.choice("quit") { @pl.stop; exit} 

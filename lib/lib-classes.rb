@@ -112,6 +112,7 @@ class AmpachePlaylist
         return "Not playing man!" unless @pid
         begin
             s= ''
+            @tim = 0
             begin
                 t = Timeout::timeout(3) do 
                     #s+= get("file_name") 
@@ -123,7 +124,7 @@ class AmpachePlaylist
                 @tim = 0
                 return s
             rescue Timeout::Error
-                @tim+=1
+                @tim += 1
                 if (@tim > 3 )
                     @tim = 0
                     return "err" 
