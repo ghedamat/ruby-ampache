@@ -99,11 +99,12 @@ Usage: pick your choice from the menu.
        Songs are queued up into mplayer playlist
 
 STR
-return s
+    return s
 end
+
+# MAIN
 @ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
 @pl = AmpachePlaylist.new
-
 
 while true 
     choose do |menu|
