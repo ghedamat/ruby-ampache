@@ -1,4 +1,5 @@
 require 'open4'
+require 'timeout'
 class AmpacheArtist
     
     # include play module
@@ -66,7 +67,13 @@ class AmpachePlaylist
             mplayer_options = "-slave -quiet"
             mplayer = "#{options[:path]} #{mplayer_options} \"#{song.url}\""
             @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
-            until @stdout.gets.inspect =~ /playback/ do
+            begin
+                t = Timeout::timeout(3) do 
+                    until @stdout.gets.inspect =~ /playback/ do
+                    end
+                end
+            rescue Timeout::Error   
+                puts "err on reading data"
             end
         else
             begin
@@ -95,7 +102,6 @@ class AmpachePlaylist
     def next
         begin
             @stdin.puts "pt_step 1 1" if @pid
-            sleep 2 #XXX sleep time .. we can't be too fast on remote playing
         rescue Errno::EPIPE
             puts "playlist is over" 
             @pid = nil
@@ -106,11 +112,25 @@ class AmpachePlaylist
         return "Not playing man!" unless @pid
         begin
             s= ''
-            #s+= get("file_name") 
-            s+= get("meta_title")  
-            s+= get("meta_artist")  
-            s+= get("meta_album")  
-            return s.chomp
+            begin
+                t = Timeout::timeout(3) do 
+                    #s+= get("file_name") 
+                    s+= get("meta_title")  
+                    s+= get("meta_artist")  
+                    s+= get("meta_album")  
+                    s.chomp!
+                end
+                @tim = 0
+                return s
+            rescue Timeout::Error
+                @tim+=1
+                if (@tim > 3 )
+                    @tim = 0
+                    return "err" 
+                else
+                    return nowPlaying 
+                end
+            end
         rescue Errno::EPIPE
             return "playlist is over" 
             @pid = nil

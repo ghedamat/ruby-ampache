@@ -5,6 +5,17 @@ require 'digest/sha2'
 
 require File.join(File.dirname(__FILE__),'lib-ampache')
 
+=begin
+Class is initialized with Hostname, user and password
+An auth token is requested on class initialization
+
+To get the artist list from database you can 
+call the method artists(nil) and you'll get an array
+of AmpacheArtists. 
+
+To get albums from an artist you can issue
+artist_instance.albums or ampache_ruby.instance.albums(artist_instance)
+=end
 class AmpacheRuby
     
     
@@ -19,7 +30,8 @@ class AmpacheRuby
     end
 
     attr_accessor :host, :path, :user, :psw, :token, :playlist
-
+    
+    # tryies to obtain an auth token 
     def getAuthToken(user,psw)
         action= "handshake"
         # auth string
@@ -32,7 +44,8 @@ class AmpacheRuby
 
         return doc.at("auth").content
     end
-
+    
+    # generic api method call
     def callApiMethod( method, args={})
         args['auth'] ||= token if token
         url = path + "/server/xml.server.php?action=#{method}&#{args.keys.collect { |k| "#{k}=#{args[k]}"}.join('&')}" 
@@ -40,7 +53,8 @@ class AmpacheRuby
         return Nokogiri::XML(response.body)
     end
 
-
+    # retrive artists lists from database,
+    # name is an optional filter
     def artists(name = nil)
         args = {}
         args = { 'filter' => name.to_s } if name  # artist search 

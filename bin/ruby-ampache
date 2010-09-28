@@ -66,13 +66,23 @@ def print_albums(albums)
 end
 
 def print_artists(artists)
-    choose do |menu|
-        menu.prompt = "Choose an artists or abort (1)"
-        menu.choice(HighLine.new.color "ABORT", :red)  
-        artists.each do |a|
-            menu.choice(a.name) { print_albums(a.albums) }  
-        end
+    if artists.empty?
+       reset_token 
+       say("token exausted, please retry")
+       artists = @ar.artists 
     end
+        choose do |menu|
+            menu.prompt = "Choose an artists or abort (1)"
+            menu.choice(HighLine.new.color "ABORT", :red)  
+            artists.each do |a|
+                menu.choice(a.name) { print_albums(a.albums) }  
+            end
+        end
+end
+
+# try to reset token if it's not valid
+def reset_token
+    @ar.token = @ar.getAuthToken(@ar.user,@ar.psw)
 end
 
 def credits
@@ -91,7 +101,7 @@ Usage: pick your choice from the menu.
 STR
 return s
 end
-ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
+@ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
 @pl = AmpachePlaylist.new
 
 
@@ -100,9 +110,10 @@ while true
         menu.prompt = "pick your choice!"
         menu.choice("now playing") { say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("skip this song") { @pl.next; say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("add another album") { print_artists(ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
+        menu.choice("add another album") { print_artists(@ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("stop playing") { @pl.stop } 
         menu.choice("about ruby-ampache") { say(HighLine.new.color credits, :red) }
         menu.choice("quit") { @pl.stop; exit} 
     end
 end
+
