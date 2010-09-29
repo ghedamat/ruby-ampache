@@ -15,10 +15,11 @@ secure_require 'highline'
 secure_require 'highline/import'
 secure_require 'parseconfig'
 secure_require 'nokogiri'
+secure_require 'iconv'
 require File.join(File.dirname(__FILE__),'..','lib','lib-ampache')
 require File.join(File.dirname(__FILE__),'..','lib','lib-classes')
 
-
+=begin
 # XXX monkey patch for utf8 on ruby 1.9
 if /^1\.9/ === RUBY_VERSION then
     class HighLine
@@ -43,6 +44,7 @@ if /^1\.9/ === RUBY_VERSION then
         end
     end
 end
+=end
 
 # Ampache ruby parameters
 begin

@@ -148,7 +148,8 @@ class AmpachePlaylist
       when "file_name" then "ANS_FILENAME"
       else "ANS_#{field.upcase}"
       end
-      command("get_#{value}",/#{match}/).gsub("#{match}=","").gsub("'","")
+      res = command("get_#{value}",/#{match}/)
+      res.gsub("#{match}=","").gsub("'","")
     end
 
     def command(cmd,match = //)
@@ -156,6 +157,9 @@ class AmpachePlaylist
       response = ""
       until response =~ match
         response = @stdout.gets
+#XXX escaping bad utf8 chars
+        ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
+        response =ic.iconv(response + ' ')[0..-2]
       end
       response.gsub("\e[A\r\e[K","")
     end
