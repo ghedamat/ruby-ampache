@@ -99,6 +99,14 @@ class AmpachePlaylist
         @pid = nil
     end
 
+    def pause
+        begin
+            @stdin.puts "pause" if @pid
+        rescue Errno::EPIPE
+            puts "playlist is over" 
+        end
+    end
+
     def next
         begin
             @stdin.puts "pt_step 1 1" if @pid
