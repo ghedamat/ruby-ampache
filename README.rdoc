@@ -18,6 +18,9 @@ example file:
     AMPACHE_USER="username"
     AMPACHE_USER_PSW="userpsw"
 
+	#optional (default is /usr/bin/mplayer)
+	MPLAYER_PATH="/usr/bin/mplayer"
+	
 Simply execute ruby-ampache that should be found in you $PATH after installation
 
 == TODO

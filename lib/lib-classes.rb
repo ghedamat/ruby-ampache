@@ -62,10 +62,9 @@ end
 class AmpachePlaylist 
     def add(song)
         if !@pid
-            options = {}
-            options[:path] ||= '/usr/bin/mplayer'
+            $options[:path] ||= '/usr/bin/mplayer'
             mplayer_options = "-slave -quiet"
-            mplayer = "#{options[:path]} #{mplayer_options} \"#{song.url}\""
+            mplayer = "#{$options[:path]} #{mplayer_options} \"#{song.url}\""
             @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
             begin
                 t = Timeout::timeout(3) do 

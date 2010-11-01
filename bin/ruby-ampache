@@ -104,6 +104,8 @@ end
 
 # MAIN
 @ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
+$options = {}
+$options[:path] = ar_config.get_value('MPLAYER_PATH')
 @pl = AmpachePlaylist.new
 
 while true 
