@@ -87,7 +87,7 @@ end
 
 def credits
     s = <<STR
-Ruby-Ampache: Ultra-simple, low-featured command line Ampache player
+Ruby-Ampache: Ultra-simple, low-featured command line Ampache player (uses mplayer for playing)
 Author: Mattia Gheda aka ghedamat
 Homepage: http://github.com/ghedamat/ruby-ampache
 Author-mail: thamayor@gmail.com
