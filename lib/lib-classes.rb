@@ -64,7 +64,7 @@ class AmpachePlaylist
     puts song.title
         if !@pid
             $options[:path] ||= '/usr/bin/mplayer'
-            $options[:timeout] ||= 5
+            $options[:timeout] ||= 15
             mplayer_options = "-slave -quiet"
             mplayer = "#{$options[:path]} #{mplayer_options} \"#{song.url}\""
             @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
