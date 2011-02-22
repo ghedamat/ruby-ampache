@@ -6,6 +6,16 @@ Ruby-ampache is a really simple command line player for the ampache music server
 
 You need to have mplayer installed to use ruby-ampache. Mplayer is used for playing music streams.
 
+The big issue within this design is that if mplayer hangs up waiting on your ampache server
+you can enconter issues on adding songs to playlist and playing them
+
+the simple fix right now is to
+set TIMEOUT variable in your .ruby-ampache config file
+tuning it depending on your ampache server delay
+
+Yes, this should be handled different
+I'm free to any kind of suggestion on how to refactor this simple piece of software :)
+
 Gem can be installed as usual
 
     gem install ruby-ampache
@@ -18,8 +28,10 @@ example file:
     AMPACHE_USER="username"
     AMPACHE_USER_PSW="userpsw"
 
-	#optional (default is /usr/bin/mplayer)
-	MPLAYER_PATH="/usr/bin/mplayer"
+    #optional (default is /usr/bin/mplayer)
+    MPLAYER_PATH="/usr/bin/mplayer"
+    # try  to increase this value if you experience issues like "err on reading data"
+    TIMEOUT=20 #20 is a good value for a remote host
 	
 Simply execute ruby-ampache that should be found in you $PATH after installation
 

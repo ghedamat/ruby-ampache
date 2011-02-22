@@ -61,24 +61,29 @@ end
 
 class AmpachePlaylist 
     def add(song)
+    puts song.title
         if !@pid
             $options[:path] ||= '/usr/bin/mplayer'
+            $options[:timeout] ||= 5
             mplayer_options = "-slave -quiet"
             mplayer = "#{$options[:path]} #{mplayer_options} \"#{song.url}\""
             @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
             begin
-                t = Timeout::timeout(3) do 
+                t = Timeout::timeout($options[:timeout]) do 
                     until @stdout.gets.inspect =~ /playback/ do
+                    # puts @stdout.gets.inspect
+
                     end
+
                 end
-            rescue Timeout::Error   
+            rescue Timeout::Error  
                 puts "err on reading data"
             end
         else
             begin
                 @stdin.puts "loadfile \"#{song.url}\" 1"
             rescue Errno::EPIPE
-                #puts "playlist is over" 
+                puts "error on adding song to playlist" 
                 @pid = nil
                 add(song)
              end
@@ -109,8 +114,8 @@ class AmpachePlaylist
     def next
         begin
             @stdin.puts "pt_step 1 1" if @pid
-        rescue Errno::EPIPE
-            puts "playlist is over" 
+        rescue Errno::EPIPE => e
+            puts "playlist is over on next" 
             @pid = nil
         end
     end
@@ -139,13 +144,14 @@ class AmpachePlaylist
                     return nowPlaying 
                 end
             end
-        rescue Errno::EPIPE
-            return "playlist is over" 
+        rescue Errno::EPIPE => e
             @pid = nil
+            return "playlist is over here" #, or you got an ERROR from mplayer: #{e.to_s}" 
+
         end
     end
     
-    # I borrowed these two method from the author of mplayer-ruby!
+    # I borrowed these two methods from the author of mplayer-ruby!
     # so my thanks to Artuh Chiu and his great gem mplayer-ruby
     def get(value)
       field = value.to_s
@@ -166,7 +172,11 @@ class AmpachePlaylist
         response = @stdout.gets
 #XXX escaping bad utf8 chars
         ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
-        response =ic.iconv(response + ' ')[0..-2]
+        if response
+          response =ic.iconv(response + ' ')[0..-2] 
+        else
+          response == ''
+        end
       end
       response.gsub("\e[A\r\e[K","")
     end

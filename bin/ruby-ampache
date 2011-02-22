@@ -68,7 +68,7 @@ end
 def print_artists(artists)
     if artists.empty?
        reset_token 
-       say("token exausted, please retry")
+       say("No results, retrying")
        artists = @ar.artists 
     end
     choose do |menu|
@@ -106,6 +106,7 @@ end
 @ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
 $options = {}
 $options[:path] = ar_config.get_value('MPLAYER_PATH')
+$options[:timeout] = ar_config.get_value('TIMEOUT').to_i
 @pl = AmpachePlaylist.new
 
 while true 
@@ -116,7 +117,7 @@ while true
         menu.choice("add another album to playlist") { print_artists(@ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("look for an artist") {  print_artists(@ar.artists(ask("Artist name?"))); say(HighLine.new.color(@pl.nowPlaying, :red)) }
         menu.choice("stop playing") { @pl.stop } 
-        menu.choice("pause playing") { @pl.pause; say(HighLine.new.color("paused!",:red)) } 
+        menu.choice("pause playing") { @pl.pause; say(HighLine.new.color("pause toggle!",:red)) } 
         menu.choice("about ruby-ampache") { say(HighLine.new.color credits, :red) }
         menu.choice("quit") { @pl.stop; exit} 
     end
