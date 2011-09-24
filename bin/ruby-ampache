@@ -2,12 +2,12 @@
 # encoding:  UTF-8
 
 def secure_require(name)
-    begin 
-        require name
-    rescue LoadError
-        $stderr.print "#{File.basename(__FILE__)} requires #{name} gem to work\n Pleas install it with: gem install #{name}\n"
-        exit
-    end
+  begin
+    require name
+  rescue LoadError
+    $stderr.print "#{File.basename(__FILE__)} requires #{name} gem to work\n Pleas install it with: gem install #{name}\n"
+    exit
+  end
 end
 
 require 'rubygems'
@@ -16,77 +16,93 @@ secure_require 'highline/import'
 secure_require 'parseconfig'
 secure_require 'nokogiri'
 secure_require 'iconv'
-require File.join(File.dirname(__FILE__),'..','lib','lib-ampache')
-require File.join(File.dirname(__FILE__),'..','lib','lib-classes')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'lib-ampache')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'lib-classes')
 
 # XXX monkey patch for utf8 on ruby 1.9
 if /^1\.9/ === RUBY_VERSION then
-    class HighLine
-        def wrap (text)
-            text = text.force_encoding("UTF-8")
-            wrapped = [ ]
-            text.each_line do |line|
-              while line =~ /([^\n]{#{@wrap_at + 1},})/
-                search  = $1.dup
-                replace = $1.dup
-                if index = replace.rindex(" ", @wrap_at)
-                  replace[index, 1] = "\n"
-                  replace.sub!(/\n[ \t]+/, "\n")
-                  line.sub!(search, replace)
-                else
-                  line[$~.begin(1) + @wrap_at, 0] = "\n"
-                end
-              end
-              wrapped << line
-            end
-            return wrapped.join
+  class HighLine
+    def wrap (text)
+      text = text.force_encoding("UTF-8")
+      wrapped = []
+      text.each_line do |line|
+        while line =~ /([^\n]{#{@wrap_at + 1},})/
+          search = $1.dup
+          replace = $1.dup
+          if index = replace.rindex(" ", @wrap_at)
+            replace[index, 1] = "\n"
+            replace.sub!(/\n[ \t]+/, "\n")
+            line.sub!(search, replace)
+          else
+            line[$~.begin(1) + @wrap_at, 0] = "\n"
+          end
         end
+        wrapped << line
+      end
+      return wrapped.join
     end
+  end
 end
 
 # Ampache ruby parameters
 begin
-ar_config = ParseConfig.new(File.expand_path('~/.ruby-ampache'))
+  ar_config = ParseConfig.new(File.expand_path('~/.ruby-ampache'))
 rescue
-   raise "\nPlease create a .ruby-ampache file on your home\n See http://github.com/ghedamat/ruby-ampache for infos\n"
+  raise "\nPlease create a .ruby-ampache file on your home\n See http://github.com/ghedamat/ruby-ampache for infos\n"
 end
 
 # ruby-ampache highline version
 $terminal.wrap_at = 80
 $terminal.page_at = 22
 
+def print_songs(album)
+  choose do |menu|
+    menu.prompt = "Add the whole album, pick a song, go back(2) or BACK TO MENU(1)"
+    menu.choice(HighLine.new.color "BACK TO MENU", :red)
+    menu.choice(HighLine.new.color "BACK", :blue) { print_albums(album.artist.albums) }
+    menu.choice(HighLine.new.color "ADD WHOLE ALBUM", :green) { album.add_to_playlist(@pl); print_albums(album.artist.albums) }
+    album.songs.each do |s|
+      menu.choice(s.title) { s.add_to_playlist(@pl); print_songs(album) }
+
+    end
+  end
+end
+
 def print_albums(albums)
-     choose do |menu|
-        menu.prompt = "Choose an album or abort (1) "
-        menu.choice(HighLine.new.color "ABORT", :red)   
-        albums.each do |a|
-            menu.choice(a.name) { a.addToPlaylist(@pl)}  
-        end
-    end   
+  choose do |menu|
+    menu.prompt = "Choose an album or BACK TO MENU (1) "
+    menu.choice(HighLine.new.color "BACK TO MENU", :red)
+    menu.choice(HighLine.new.color "BACK", :blue) { print_artists(@ar.artists) }
+    menu.choice(HighLine.new.color "ADD WHOLE ARTIST", :green) { albums.first.artist.add_to_playlist(@pl); print_artists(@ar.artists) }
+
+    albums.each do |a|
+      menu.choice(a.name) { print_songs(a) }
+    end
+  end
 end
 
 def print_artists(artists)
-    if artists.empty?
-       reset_token 
-       say("No results, retrying")
-       artists = @ar.artists 
+  if artists.empty?
+    reset_token
+    say("No results, retrying")
+    artists = @ar.artists
+  end
+  choose do |menu|
+    menu.prompt = "Choose an artists or BACK TO MENU (1)"
+    menu.choice(HighLine.new.color "BACK TO MENU", :red)
+    artists.each do |a|
+      menu.choice(a.name) { print_albums(a.albums) }
     end
-    choose do |menu|
-        menu.prompt = "Choose an artists or abort (1)"
-        menu.choice(HighLine.new.color "ABORT", :red)  
-        artists.each do |a|
-            menu.choice(a.name) { print_albums(a.albums) }  
-        end
-    end
+  end
 end
 
 # try to reset token if it's not valid
 def reset_token
-    @ar.token = @ar.getAuthToken(@ar.user,@ar.psw)
+  @ar.token = @ar.getAuthToken(@ar.user, @ar.psw)
 end
 
 def credits
-    s = <<STR
+  s = <<STR
 Ruby-Ampache: Ultra-simple, low-featured command line Ampache player (uses mplayer for playing)
 Author: Mattia Gheda aka ghedamat
 Homepage: http://github.com/ghedamat/ruby-ampache
@@ -94,32 +110,35 @@ Author-mail: thamayor@gmail.com
 
 Usage: pick your choice from the menu. 
        You can start playing songs from your ampache server right now! 
-       Simply choose an artist and than an album
+       Simply choose an artist,an album or a single song
        You can queue up as many albums you like
        Songs are queued up into mplayer playlist
 
 STR
-    return s
+  return s
 end
 
 # MAIN
-@ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'),ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
+@ar =AmpacheRuby.new(ar_config.get_value('AMPACHE_HOST'), ar_config.get_value('AMPACHE_USER'), ar_config.get_value('AMPACHE_USER_PSW'))
 $options = {}
 $options[:path] = ar_config.get_value('MPLAYER_PATH')
 $options[:timeout] = ar_config.get_value('TIMEOUT').to_i
 @pl = AmpachePlaylist.new
 
-while true 
-    choose do |menu|
-        menu.prompt = "pick your choice!"
-        menu.choice("now playing") { say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("skip this song") { @pl.next; say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("add another album to playlist") { print_artists(@ar.artists); say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("look for an artist") {  print_artists(@ar.artists(ask("Artist name?"))); say(HighLine.new.color(@pl.nowPlaying, :red)) }
-        menu.choice("stop playing") { @pl.stop } 
-        menu.choice("pause playing") { @pl.pause; say(HighLine.new.color("pause toggle!",:red)) } 
-        menu.choice("about ruby-ampache") { say(HighLine.new.color credits, :red) }
-        menu.choice("quit") { @pl.stop; exit} 
-    end
+say(HighLine.new.color "Welcome To ruby Ampache\n", :green)
+while true
+  choose do |menu|
+    menu.prompt = HighLine.new.color("pick your choice!\n", :yellow)
+    menu.choice(HighLine.new.color("add artist/album/song to the playlist", :green)) { print_artists(@ar.artists); say(HighLine.new.color(@pl.now_playing, :red)) }
+    menu.choice(HighLine.new.color("search artist", :green)) { print_artists(@ar.artists(ask(HighLine.new.color("Artist name?", :red)))); say(HighLine.new.color(@pl.now_playing, :red)) }
+
+    menu.choice(HighLine.new.color("now playing", :blue)) { say(HighLine.new.color(@pl.now_playing, :red)) }
+    menu.choice(HighLine.new.color("skip current song", :blue)) { @pl.next; say(HighLine.new.color(@pl.now_playing, :red)) }
+    menu.choice(HighLine.new.color "stop playing", :blue) { @pl.stop }
+
+    menu.choice(HighLine.new.color "pause playing",:blue) { @pl.pause; say(HighLine.new.color("pause toggle!", :red)) }
+    menu.choice(HighLine.new.color "help and about", :yellow) { say(HighLine.new.color credits, :red) }
+    menu.choice(HighLine.new.color "quit",:red) { @pl.stop; exit }
+  end
 end
 
