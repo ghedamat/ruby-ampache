@@ -57,7 +57,7 @@ $terminal.page_at = 22
 
 def print_songs(album)
   choose do |menu|
-    menu.prompt = "PICK A SONG (4..N), ADD WHOLE ARTIST (3), GO BACK(2) or BACK TO MENU(1)"
+    menu.prompt = "PICK A SONG (4..N), ADD WHOLE ALBUM (3), GO BACK(2) or BACK TO MENU(1)"
     menu.choice(HighLine.new.color "BACK TO MENU", :red)
     menu.choice(HighLine.new.color "BACK", :magenta) { print_albums(album.artist.albums) }
     menu.choice(HighLine.new.color "ADD WHOLE ALBUM", :green) { album.add_to_playlist(@pl); print_albums(album.artist.albums) }

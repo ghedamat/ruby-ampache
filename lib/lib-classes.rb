@@ -101,6 +101,7 @@ class AmpachePlaylist
       else
         puts "PLAYLIST OVER"
         @started = false
+        @pid  = nil
       end
     end
   end
