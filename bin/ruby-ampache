@@ -57,9 +57,9 @@ $terminal.page_at = 22
 
 def print_songs(album)
   choose do |menu|
-    menu.prompt = "Add the whole album, pick a song, go back(2) or BACK TO MENU(1)"
+    menu.prompt = "PICK A SONG (4..N), ADD WHOLE ARTIST (3), GO BACK(2) or BACK TO MENU(1)"
     menu.choice(HighLine.new.color "BACK TO MENU", :red)
-    menu.choice(HighLine.new.color "BACK", :blue) { print_albums(album.artist.albums) }
+    menu.choice(HighLine.new.color "BACK", :magenta) { print_albums(album.artist.albums) }
     menu.choice(HighLine.new.color "ADD WHOLE ALBUM", :green) { album.add_to_playlist(@pl); print_albums(album.artist.albums) }
     album.songs.each do |s|
       menu.choice(s.title) { s.add_to_playlist(@pl); print_songs(album) }
@@ -70,9 +70,9 @@ end
 
 def print_albums(albums)
   choose do |menu|
-    menu.prompt = "Choose an album or BACK TO MENU (1) "
+    menu.prompt = "CHOOSE AN ALBUM (4..N), ADD WHOLE ARTIST(3), BACK TO LIST(2) or BACK TO MENU (1) "
     menu.choice(HighLine.new.color "BACK TO MENU", :red)
-    menu.choice(HighLine.new.color "BACK", :blue) { print_artists(@ar.artists) }
+    menu.choice(HighLine.new.color "BACK", :magenta) { print_artists(@ar.artists) }
     menu.choice(HighLine.new.color "ADD WHOLE ARTIST", :green) { albums.first.artist.add_to_playlist(@pl); print_artists(@ar.artists) }
 
     albums.each do |a|
@@ -88,12 +88,24 @@ def print_artists(artists)
     artists = @ar.artists
   end
   choose do |menu|
-    menu.prompt = "Choose an artists or BACK TO MENU (1)"
+    menu.prompt = "CHOOSE AN ARTIST (2..N) or  BACK TO MENU (1)"
     menu.choice(HighLine.new.color "BACK TO MENU", :red)
     artists.each do |a|
       menu.choice(a.name) { print_albums(a.albums) }
     end
   end
+end
+
+def print_playlist
+  if @pl.list.empty?
+    say(HighLine.new.color "No more songs!\n",:red)
+    return
+  end
+  say(HighLine.new.color "Next Songs:", :yellow)
+  @pl.list.each_with_index do |p,i|
+    say(HighLine.new.color(i.to_s + " : ", :green) + p.title)
+  end
+  puts ""
 end
 
 # try to reset token if it's not valid
@@ -112,8 +124,6 @@ Usage: pick your choice from the menu.
        You can start playing songs from your ampache server right now! 
        Simply choose an artist,an album or a single song
        You can queue up as many albums you like
-       Songs are queued up into mplayer playlist
-
 STR
   return s
 end
@@ -132,11 +142,12 @@ while true
     menu.choice(HighLine.new.color("add artist/album/song to the playlist", :green)) { print_artists(@ar.artists); say(HighLine.new.color(@pl.now_playing, :red)) }
     menu.choice(HighLine.new.color("search artist", :green)) { print_artists(@ar.artists(ask(HighLine.new.color("Artist name?", :red)))); say(HighLine.new.color(@pl.now_playing, :red)) }
 
-    menu.choice(HighLine.new.color("now playing", :blue)) { say(HighLine.new.color(@pl.now_playing, :red)) }
-    menu.choice(HighLine.new.color("skip current song", :blue)) { @pl.next; say(HighLine.new.color(@pl.now_playing, :red)) }
-    menu.choice(HighLine.new.color "stop playing", :blue) { @pl.stop }
+    menu.choice(HighLine.new.color("now playing", :magenta)) { say(HighLine.new.color(@pl.now_playing, :red)) }
+    menu.choice(HighLine.new.color("view next songs", :magenta)) {print_playlist}
+    menu.choice(HighLine.new.color("skip current song", :magenta)) { @pl.next; sleep 1;say(HighLine.new.color(@pl.now_playing, :red)) }
+    menu.choice(HighLine.new.color "stop playing and clear playlist", :magenta) { @pl.stop }
 
-    menu.choice(HighLine.new.color "pause playing",:blue) { @pl.pause; say(HighLine.new.color("pause toggle!", :red)) }
+    menu.choice(HighLine.new.color "pause playing",:magenta) { @pl.pause; say(HighLine.new.color("pause toggle!", :red)) }
     menu.choice(HighLine.new.color "help and about", :yellow) { say(HighLine.new.color credits, :red) }
     menu.choice("quit") { @pl.stop; exit }
   end

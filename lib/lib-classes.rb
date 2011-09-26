@@ -42,7 +42,6 @@ class AmpacheAlbum
   def add_to_playlist(pl)
     songs.each do |s|
       s.add_to_playlist(pl)
-      sleep 5
     end
   end
 
@@ -70,9 +69,11 @@ end
 class AmpachePlaylist
 
   def initialize
-    mplayer_start
     @started = false
+    @list = []
   end
+
+  attr_reader :list
 
   def started?
     @started == true
@@ -82,12 +83,27 @@ class AmpachePlaylist
     @started = true
   end
 
-  def mplayer_start
+
+  def mplayer_start(song)
+  #puts song.inspect
     $options[:path] ||= '/usr/bin/mplayer'
     $options[:timeout] ||= 15
-    mplayer_options = "-slave -quiet -idle"
-    mplayer = "#{$options[:path]} #{mplayer_options} "
+    mplayer_options = "-slave -quiet"
+    mplayer = "#{$options[:path]} #{mplayer_options} \"#{song.url}\""
     @pid, @stdin, @stdout, @stderr = Open4.popen4(mplayer)
+    #puts mplayer
+    started!
+    Thread.new do
+      ignored, status = Process::waitpid2 @pid
+      puts "INTO TRD"
+      next_song = @list.slice!(0)
+      if next_song && started?
+        mplayer_start(next_song) 
+      else
+        puts "PLAYLIST OVER"
+        @started = false
+      end
+    end
   end
 
   def console
@@ -97,33 +113,23 @@ class AmpachePlaylist
   end
 
   def add(song)
-
     say(HighLine.new.color("adding song ",:green) + "#{song.title}")
-    if !@pid
-      started!
-      mplayer_start
+    if !@pid && !started?
+      mplayer_start(song)
+    else
+      @list << song
     end
-    begin
-      started!
-      @stdin.puts "loadfile \"#{song.url}\" 1"
-
-    rescue Errno::EPIPE
-      puts "error on adding song to playlist"
-      @pid = nil
-      @started = false
-      add(song)
-    end
-
   end
 
   def stop
     begin
+      @started = false
+      @list = []
       @stdin.puts "quit" if @pid
     rescue Errno::EPIPE
       puts "playlist is over"
     end
     @pid = nil
-    @started = false
   end
 
   def pause
@@ -136,12 +142,8 @@ class AmpachePlaylist
 
   def next
     begin
-      @stdin.puts "pt_step 1 1" unless @pid.nil?
-      until @stdout.gets.inspect =~ /playback/ do
-        puts   @stdout.gets
-
-      end
-
+      # quit current mplayer instance.. thread will fire up next song!
+      @stdin.puts "quit" if @pid && started?
     rescue Errno::EPIPE => e
       puts "playlist is over on next"
       @pid = nil
@@ -191,7 +193,7 @@ class AmpachePlaylist
       t = Timeout::timeout(3) do
         until response =~ match
           response = @stdout.gets
-          puts response
+          #puts response
     #XXX escaping bad utf8 chars
           ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
           if response
