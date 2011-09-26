@@ -6,15 +6,11 @@ Ruby-ampache is a really simple command line player for the ampache music server
 
 You need to have mplayer installed to use ruby-ampache. Mplayer is used for playing music streams.
 
-The big issue within this design is that if mplayer hangs up waiting on your ampache server
-you can enconter issues on adding songs to playlist and playing them
+I've recently changed the way mplayer is invoked as mplayer slave mode is great, 
+but not good to manage playlists..
+I'm still testing it right now but it should work far better.
 
-the simple fix right now is to
-set TIMEOUT variable in your .ruby-ampache config file
-tuning it depending on your ampache server delay
-
-Yes, this should be handled different
-I'm free to any kind of suggestion on how to refactor this simple piece of software :)
+A few options have been added to the menu and most of all it is full of colors now!
 
 Gem can be installed as usual
 
@@ -27,11 +23,8 @@ example file:
     AMPACHE_HOST="http://path_to_your_ampache_host"
     AMPACHE_USER="username"
     AMPACHE_USER_PSW="userpsw"
-
     #optional (default is /usr/bin/mplayer)
     MPLAYER_PATH="/usr/bin/mplayer"
-    # try  to increase this value if you experience issues like "err on reading data"
-    TIMEOUT=20 #20 is a good value for a remote host
 	
 Simply execute ruby-ampache that should be found in you $PATH after installation
 
@@ -42,6 +35,10 @@ Also sometimes if mplayer get stucked playing a song the app does the same.
 
 If you found more issues please let me know and I'll try to fix them as soon as possible
 
+* fix encoding issues with file metadata retrieved from mplayer
+
+
+
 == Notes
 Special thanks goes to the developer of mplayer-ruby gem.
 I've borrowed a couple of methods from his useful library
@@ -50,8 +47,6 @@ I've borrowed a couple of methods from his useful library
  
 * Fork the project.
 * Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
 * Commit, do not mess with rakefile, version, or history.
   (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.

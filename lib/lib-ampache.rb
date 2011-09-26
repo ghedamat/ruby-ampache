@@ -13,9 +13,10 @@ To get the artist list from database you can
 call the method artists(nil) and you'll get an array
 of AmpacheArtists. 
 
-To get albums from an artist you can issue
+To get albums from an artist you can use
 artist_instance.albums or ampache_ruby.instance.albums(artist_instance)
 =end
+
 class AmpacheRuby
 
 
@@ -33,24 +34,36 @@ class AmpacheRuby
 
   # tryies to obtain an auth token
   def getAuthToken(user, psw)
-    action= "handshake"
-    # auth string
-    key = Digest::SHA2.new << psw
-    time = Time.now.to_i.to_s
-    psk = Digest::SHA2.new << (time + key.to_s)
+    begin
+      action= "handshake"
+      # auth string
+      key = Digest::SHA2.new << psw
+      time = Time.now.to_i.to_s
+      psk = Digest::SHA2.new << (time + key.to_s)
 
-    args = {'auth' => psk, 'timestamp'=> time, 'version' => '350001', 'user' => user}
-    doc = callApiMethod(action, args);
+      args = {'auth' => psk, 'timestamp'=> time, 'version' => '350001', 'user' => user}
+      doc = callApiMethod(action, args);
 
-    return doc.at("auth").content
+      return doc.at("auth").content
+    rescue Exception => e 
+      warn ""
+      warn  "token not valid or expired, check your username and password" 
+      warn ""
+    end
   end
 
   # generic api method call
   def callApiMethod(method, args={})
-    args['auth'] ||= token if token
-    url = path + "/server/xml.server.php?action=#{method}&#{args.keys.collect { |k| "#{k}=#{args[k]}" }.join('&')}"
-    response = Net::HTTP.get_response(host, url)
-    return Nokogiri::XML(response.body)
+    begin
+      args['auth'] ||= token if token
+      url = path + "/server/xml.server.php?action=#{method}&#{args.keys.collect { |k| "#{k}=#{args[k]}" }.join('&')}"
+      response = Net::HTTP.get_response(host, url)
+      return Nokogiri::XML(response.body)
+    rescue Errno::ECONNREFUSED => e
+      warn "Ampache closed with the following error"
+      warn e.message
+      exit
+    end
   end
 
   # retrive artists lists from database,

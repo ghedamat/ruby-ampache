@@ -95,7 +95,6 @@ class AmpachePlaylist
     started!
     Thread.new do
       ignored, status = Process::waitpid2 @pid
-      puts "INTO TRD"
       next_song = @list.slice!(0)
       if next_song && started?
         mplayer_start(next_song) 
