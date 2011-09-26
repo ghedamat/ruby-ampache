@@ -138,7 +138,7 @@ while true
 
     menu.choice(HighLine.new.color "pause playing",:blue) { @pl.pause; say(HighLine.new.color("pause toggle!", :red)) }
     menu.choice(HighLine.new.color "help and about", :yellow) { say(HighLine.new.color credits, :red) }
-    menu.choice(HighLine.new.color "quit",:red) { @pl.stop; exit }
+    menu.choice("quit") { @pl.stop; exit }
   end
 end
 

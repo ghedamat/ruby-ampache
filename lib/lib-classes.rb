@@ -42,7 +42,7 @@ class AmpacheAlbum
   def add_to_playlist(pl)
     songs.each do |s|
       s.add_to_playlist(pl)
-      sleep 1
+      sleep 5
     end
   end
 
@@ -106,6 +106,7 @@ class AmpachePlaylist
     begin
       started!
       @stdin.puts "loadfile \"#{song.url}\" 1"
+
     rescue Errno::EPIPE
       puts "error on adding song to playlist"
       @pid = nil
@@ -136,6 +137,11 @@ class AmpachePlaylist
   def next
     begin
       @stdin.puts "pt_step 1 1" unless @pid.nil?
+      until @stdout.gets.inspect =~ /playback/ do
+        puts   @stdout.gets
+
+      end
+
     rescue Errno::EPIPE => e
       puts "playlist is over on next"
       @pid = nil
@@ -185,6 +191,7 @@ class AmpachePlaylist
       t = Timeout::timeout(3) do
         until response =~ match
           response = @stdout.gets
+          puts response
     #XXX escaping bad utf8 chars
           ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
           if response
