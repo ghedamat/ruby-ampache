@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ruby-ampache}
-  s.version = "0.0.10"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["ghedmat"]
-  s.date = %q{2011-02-22}
+  s.date = %q{2011-09-26}
   s.default_executable = %q{ruby-ampache}
   s.description = %q{ruby ampache command line client}
   s.email = %q{thamayor@gmail.com}
@@ -33,10 +33,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.5.0}
   s.summary = %q{Ruby ampache command line client}
-  s.test_files = [
-    "test/helper.rb",
-    "test/test_ruby-ampache.rb"
-  ]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
