@@ -24,13 +24,14 @@ class AmpacheRuby
     uri = URI.parse(host)
     @host = uri.host
     @path = uri.path
+    @port = uri.port
     @user = user
     @psw = psw
     @token = nil
     @token = getAuthToken(user, psw)
   end
 
-  attr_accessor :host, :path, :user, :psw, :token, :playlist
+  attr_accessor :host, :path, :user, :psw, :token, :playlist, :port
 
   # tryies to obtain an auth token
   def getAuthToken(user, psw)
@@ -57,7 +58,7 @@ class AmpacheRuby
     begin
       args['auth'] ||= token if token
       url = path + "/server/xml.server.php?action=#{method}&#{args.keys.collect { |k| "#{k}=#{args[k]}" }.join('&')}"
-      response = Net::HTTP.get_response(host, url)
+      response = Net::HTTP.get_response(host, url, port)
       return Nokogiri::XML(response.body)
     rescue Errno::ECONNREFUSED => e
       warn "Ampache closed with the following error"
